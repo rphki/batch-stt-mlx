@@ -130,7 +130,17 @@ Notes:
 
 ## Release
 
-One command, on an up-to-date `main`:
+**Normal way: label the PR.** Before merging a PR into `main`, give it one of these labels; the merge then triggers the [Release workflow](.github/workflows/release.yml), which runs `gui/scripts/release.sh` on an Apple Silicon runner and publishes the DMG:
+
+| Label | New version |
+|-------|-------------|
+| `release` | 0.1.0 → 0.1.1 |
+| `release:minor` | 0.1.0 → 0.2.0 |
+| `release:major` | 0.1.0 → 1.0.0 |
+
+PRs without a label publish nothing. Progress and errors: **Actions → Release**. To test the pipeline without publishing: **Actions → Release → Run workflow** (dry run is preselected; the built DMG is attached to the run for 7 days).
+
+**Locally**, the same script runs with one command on an up-to-date `main`:
 
 ```bash
 gui/scripts/release.sh            # 0.1.0 -> 0.1.1
