@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 
 from mlx_whisper_batch.audio import is_audio
 from mlx_whisper_batch.settings import DEFAULT_AUDIO_EXTENSIONS
@@ -94,7 +94,9 @@ def fix_whisper_output_names(
     *,
     dry_run: bool = False,
     audio_extensions: Sequence[str] = DEFAULT_AUDIO_EXTENSIONS,
+    log: Callable[[str], None] | None = None,
 ) -> FixResult:
+    log = log or (lambda text: print(text, flush=True))
     directory = audio.parent
     correct_stem = audio.with_suffix("").name
     audio_files = [
@@ -110,14 +112,14 @@ def fix_whisper_output_names(
         if orphan is None:
             continue
         if right.exists():
-            print(f"skip (target exists): {right}", flush=True)
+            log(f"skip (target exists): {right}")
             result.skipped += 1
             continue
         if dry_run:
-            print(f"would rename: {orphan} -> {right}", flush=True)
+            log(f"would rename: {orphan} -> {right}")
         else:
             orphan.rename(right)
-            print(f"renamed: {orphan} -> {right}", flush=True)
+            log(f"renamed: {orphan} -> {right}")
         result.renamed += 1
 
     return result

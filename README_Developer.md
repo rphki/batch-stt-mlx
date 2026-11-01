@@ -70,6 +70,8 @@ src/mlx_whisper_batch/
   outputs.py      # .json / .txt write + truncated-name fix
   audio.py        # duration / format helpers
   settings.py     # TOML + CLI overrides
+  events.py       # Reporter (progress hooks) + Cancelled
+  models.py       # model cache check + download with progress
 tests/            # pytest suite
 whisper-batch.example.toml
 pyproject.toml    # hatchling, scripts, optional [dev]
@@ -79,6 +81,41 @@ Entry points (from `pyproject.toml`):
 
 - `whisper-batch` → `mlx_whisper_batch.cli:main`
 - `whisper-fix-output-names` → `mlx_whisper_batch.fix_cli:main`
+
+## Mac app (`gui/`)
+
+A [Briefcase](https://briefcase.readthedocs.io/) + [Toga](https://toga.readthedocs.io/) app that depends on the core package via `requires = ["../"]` in `gui/pyproject.toml`. The core reports progress through `mlx_whisper_batch.events.Reporter` and supports cancellation via a `threading.Event`; the CLI uses the printing default.
+
+```text
+gui/
+  pyproject.toml            # Briefcase config (macOS arm64 only, min macOS 14)
+  src/whisper_batch_app/
+    __main__.py             # entry; handles `<app> -c CODE` re-launches (multiprocessing)
+    app.py                  # window, prefs, model download, bundle self-test
+    runner.py               # worker thread, thread-safe reporter, caffeinate
+    i18n.py                 # de/en strings
+    resources/bin/          # ffmpeg + ffprobe (downloaded, gitignored)
+  scripts/fetch_ffmpeg.sh   # static arm64 ffmpeg/ffprobe, pinned in scripts/ffmpeg.lock (--update to bump)
+  scripts/build_dmg.sh      # fetch ffmpeg, build, self-test without Homebrew, package DMG
+  tests/                    # headless UI tests (toga-dummy)
+```
+
+```bash
+cd gui
+python3.12 -m venv .venv && .venv/bin/pip install briefcase
+.venv/bin/briefcase dev            # run from source
+.venv/bin/briefcase dev --test     # UI tests
+scripts/build_dmg.sh               # → gui/dist/Whisper Batch-<version>.dmg
+```
+
+Notes:
+
+- **Self-test of a built bundle:** `WHISPER_BATCH_SELFTEST=<folder> "build/whisper_batch_app/macos/app/Whisper Batch.app/Contents/MacOS/Whisper Batch"` transcribes the folder with `whisper-tiny` and prints `selftest:` lines to stderr (normal stdout goes to the unified log via `std-nslog`).
+- **`sys.executable` is the app stub** in the bundle. Libraries that re-launch Python with `-c` (multiprocessing's resource tracker, used via tqdm) would start a second app; `__main__.py` runs such `-c` code instead. Keep that guard.
+- **min macOS 14:** with a lower `min_os_version` pip resolves an older MLX release.
+- **Size:** app ~950 MB, DMG ~230 MB; `torch` (pulled in by mlx-whisper) is ~350 MB of that.
+- **Signing:** `build_dmg.sh` signs ad hoc. For notarized releases use a Developer ID: `briefcase package macOS app` without `--adhoc-sign`.
+- **ffmpeg licence:** the downloaded static builds are typically GPL. Ship the matching licence text and source pointer with releases, or switch to an LGPL build.
 
 ## Promote to pipx
 

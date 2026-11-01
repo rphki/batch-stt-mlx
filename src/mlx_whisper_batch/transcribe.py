@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 from typing import Any, Callable
 
+from mlx_whisper_batch.events import Cancelled, Reporter
 from mlx_whisper_batch.loops import has_repeat_loop
 from mlx_whisper_batch.settings import Settings
 
@@ -65,18 +67,24 @@ def transcribe_chunked(
     audio_duration: float,
     transcribe_fn: TranscribeFn | None = None,
     verbose: bool | None = None,
+    reporter: Reporter | None = None,
+    cancel: threading.Event | None = None,
 ) -> dict[str, Any]:
     """Transcribe in time windows; raise RepeatLoopDetected on early loop.
 
     Default verbose=None silences mlx-whisper (no progress bar, no segment dump).
+    Raises Cancelled before the next window once `cancel` is set.
     """
     fn = transcribe_fn or _default_transcribe
+    reporter = reporter or Reporter()
     path = str(audio)
     all_segments: list[dict[str, Any]] = []
     language: str | None = settings.language
     full_text_parts: list[str] = []
 
     for start, end in _chunk_bounds(audio_duration, settings.monitor_chunk_secs):
+        if cancel is not None and cancel.is_set():
+            raise Cancelled()
         kwargs: dict[str, Any] = {
             "path_or_hf_repo": settings.model,
             "condition_on_previous_text": condition_on_previous_text,
@@ -96,6 +104,7 @@ def transcribe_chunked(
         chunk_text = (result.get("text") or "").strip()
         if chunk_text:
             full_text_parts.append(chunk_text)
+        reporter.chunk_done(Path(path), end, audio_duration, chunk_text)
 
         if has_repeat_loop(
             all_segments,
@@ -126,21 +135,23 @@ def transcribe_with_retry(
     audio_duration: float,
     transcribe_fn: TranscribeFn | None = None,
     verbose: bool | None = None,
+    reporter: Reporter | None = None,
+    cancel: threading.Event | None = None,
 ) -> tuple[dict[str, Any], int]:
     """
     Attempt 1 with condition_on_previous_text_first; on loop, retry with retry flag.
     Returns (result, attempt_number).
     """
+    reporter = reporter or Reporter()
     last_error: Exception | None = None
     for attempt in range(1, max(1, settings.max_attempts) + 1):
         if attempt == 1:
             condition = settings.condition_on_previous_text_first
         else:
             condition = settings.condition_on_previous_text_retry
-            print(
+            reporter.log(
                 f"loop detected — retry attempt {attempt} "
-                f"(condition_on_previous_text={condition})",
-                flush=True,
+                f"(condition_on_previous_text={condition})"
             )
         try:
             result = transcribe_chunked(
@@ -150,6 +161,8 @@ def transcribe_with_retry(
                 audio_duration=audio_duration,
                 transcribe_fn=transcribe_fn,
                 verbose=verbose,
+                reporter=reporter,
+                cancel=cancel,
             )
             # Final check (should already be clean)
             if has_repeat_loop(
@@ -162,7 +175,7 @@ def transcribe_with_retry(
             return result, attempt
         except RepeatLoopDetected as exc:
             last_error = exc
-            print(f"warning: {exc}", flush=True)
+            reporter.log(f"warning: {exc}")
             continue
     assert last_error is not None
     raise last_error

@@ -17,6 +17,18 @@ Background and motivation (why this exists, local-only, overnight batching) on m
 - [English](https://aporeo.com/en/articles/mlx-whisper-batch)
 - [Deutsch](https://aporeo.com/de/articles/mlx-whisper-batch)
 
+## Mac app (no Terminal)
+
+**Whisper Batch.app** wraps the same transcription in a window: choose a folder, pick language and model, press **Start**. Python, MLX and ffmpeg are bundled; no Homebrew or pipx needed. Requires macOS 14+ on Apple Silicon.
+
+1. Open `Whisper Batch-<version>.dmg` and drag **Whisper Batch** into **Applications**.
+2. First launch: the app is not notarized yet, so macOS blocks it. Open **System Settings → Privacy & Security**, scroll to the message about "Whisper Batch" and click **Open Anyway**.
+3. On the first run the app offers to download the speech model (~3 GB for best quality). After that it works offline.
+
+The app keeps the Mac awake while transcribing, writes the same `.txt` / `.json` / `whisper-batch.log` files as the CLI, and honours a `whisper-batch.toml` in the chosen folder (or `~/.rphki/whisper-batch.toml`); the options chosen in the window take precedence.
+
+The rest of this README covers the command-line tool.
+
 ## Requirements
 
 - Apple Silicon Mac (M1 or newer)

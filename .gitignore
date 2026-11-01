@@ -10,3 +10,13 @@ whisper-batch.toml
 *.log
 .DS_Store
 /.cursor/
+
+# GUI (Briefcase)
+gui/.venv/
+gui/.briefcase/
+gui/build/
+gui/dist/
+gui/logs/
+gui/src/whisper_batch_app/resources/bin/
+gui/src/*.dist-info/
+gui/src/whisper_batch_app/resources/licenses/ffmpeg/NOTICE.txt
