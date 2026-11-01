@@ -32,8 +32,13 @@ STRINGS: dict[str, dict[str, str]] = {
     "file_progress": {"en": "File {index} of {pending}: {name}", "de": "Datei {index} von {pending}: {name}"},
     "download_title": {"en": "Download model?", "de": "Modell herunterladen?"},
     "download_message": {
-        "en": "The speech model is not on this Mac yet:\n\n{model}\n\nIt is downloaded once and then works offline. Download now?",
-        "de": "Das Sprachmodell ist noch nicht auf diesem Mac:\n\n{model}\n\nEs wird einmalig geladen und funktioniert danach offline. Jetzt herunterladen?",
+        "en": "The speech model is not on this Mac yet:\n\n{model} ({size})\n\nIt is downloaded once and then works offline. Download now?",
+        "de": "Das Sprachmodell ist noch nicht auf diesem Mac:\n\n{model} ({size})\n\nEs wird einmalig geladen und funktioniert danach offline. Jetzt herunterladen?",
+    },
+    "disk_title": {"en": "Not enough disk space", "de": "Nicht genug Speicherplatz"},
+    "disk_message": {
+        "en": "The speech model needs about {needed} of free space, but only {free} is available.\n\nFree up some space, or choose a smaller model.",
+        "de": "Für das Sprachmodell werden etwa {needed} freier Speicher benötigt, verfügbar sind nur {free}.\n\nGib Speicherplatz frei oder wähle ein kleineres Modell.",
     },
     "downloading": {"en": "Downloading model… {done} of {total}", "de": "Lade Modell herunter… {done} von {total}"},
     "download_failed": {"en": "Download failed", "de": "Download fehlgeschlagen"},

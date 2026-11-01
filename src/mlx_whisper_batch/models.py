@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 import threading
 from pathlib import Path
 from typing import Callable
@@ -21,6 +22,28 @@ def is_model_cached(model: str, *, cache_dir: Path | None = None) -> bool:
     except LocalEntryNotFoundError:
         return False
     return True
+
+
+def missing_bytes(model: str, *, cache_dir: Path | None = None) -> int:
+    """Bytes still to download for `model` (0 if local or fully cached). Needs network."""
+    if Path(model).exists():
+        return 0
+    from huggingface_hub import snapshot_download
+
+    plan = snapshot_download(model, cache_dir=cache_dir, dry_run=True)
+    return sum(f.file_size for f in plan if f.will_download)
+
+
+def free_bytes(cache_dir: Path | None = None) -> int:
+    """Free disk space where the HF cache lives (or would be created)."""
+    if cache_dir is None:
+        from huggingface_hub import constants
+
+        cache_dir = Path(constants.HF_HUB_CACHE)
+    path = Path(cache_dir)
+    while not path.exists():
+        path = path.parent
+    return shutil.disk_usage(path).free
 
 
 def _dir_bytes(path: Path) -> int:

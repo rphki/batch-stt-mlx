@@ -14,7 +14,7 @@ from toga.style.pack import COLUMN, ROW, Pack
 
 from mlx_whisper_batch.audio import MissingDependencyError, collect_audio_files, needs_transcription
 from mlx_whisper_batch.events import Reporter
-from mlx_whisper_batch.models import ensure_model, is_model_cached
+from mlx_whisper_batch.models import ensure_model, free_bytes, is_model_cached, missing_bytes
 from mlx_whisper_batch.settings import Settings, load_settings
 from whisper_batch_app.i18n import _
 from whisper_batch_app.runner import run_batch_async, reveal_in_finder
@@ -25,6 +25,8 @@ MODELS = {
     "mlx-community/whisper-large-v3-turbo": "model_turbo",
     "mlx-community/whisper-small-mlx": "model_small",
 }
+# Headroom beyond the model download itself (transcripts, temp files, the OS)
+DISK_MARGIN = 1_000_000_000
 
 
 def bundled_bin_dir() -> Path:
@@ -312,7 +314,23 @@ class WhisperBatch(toga.App):
     async def download_model_if_needed(self, model: str) -> bool:
         if await self.loop.run_in_executor(None, is_model_cached, model):
             return True
-        ok = await self.main_window.dialog(toga.ConfirmDialog(_("download_title"), _("download_message", model=model)))
+        try:
+            needed = await self.loop.run_in_executor(None, missing_bytes, model)
+        except Exception as exc:  # noqa: BLE001 — offline, Hugging Face unreachable
+            await self.main_window.dialog(toga.ErrorDialog(_("download_failed"), str(exc)))
+            return False
+        free = free_bytes()
+        if free < needed + DISK_MARGIN:
+            await self.main_window.dialog(
+                toga.ErrorDialog(
+                    _("disk_title"),
+                    _("disk_message", needed=format_gb(needed + DISK_MARGIN), free=format_gb(free)),
+                )
+            )
+            return False
+        ok = await self.main_window.dialog(
+            toga.ConfirmDialog(_("download_title"), _("download_message", model=model, size=format_gb(needed)))
+        )
         if not ok:
             return False
 
