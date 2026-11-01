@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mlx-whisper-batch"
-version = "0.1.0"
+version = "0.1.1"
 description = "Overnight batch transcription of dictation archives on Apple Silicon with mlx-whisper"
 readme = "README.md"
 license = "MIT"
