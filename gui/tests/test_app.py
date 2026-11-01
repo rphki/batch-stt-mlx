@@ -98,3 +98,37 @@ def test_german_strings(monkeypatch):
 def test_quit_while_idle_is_allowed(app):
     # Toga wraps the overridden method as a handler taking `command`
     assert asyncio.run(app.on_exit(None)) is True
+
+
+@pytest.fixture
+def model_missing(app, monkeypatch):
+    """Model not cached, 3 GB to download; records dialogs and download calls."""
+    dialogs, downloads = [], []
+
+    async def fake_dialog(dialog):
+        dialogs.append(dialog)
+        return True  # user confirms
+
+    monkeypatch.setattr(app_mod, "is_model_cached", lambda model: False)
+    monkeypatch.setattr(app_mod, "missing_bytes", lambda model: 3_000_000_000)
+    monkeypatch.setattr(app_mod, "ensure_model", lambda model, progress: downloads.append(model))
+    monkeypatch.setattr(app.main_window, "dialog", fake_dialog)
+    return dialogs, downloads
+
+
+def test_not_enough_disk_space_blocks_download(app, model_missing, monkeypatch):
+    dialogs, downloads = model_missing
+    monkeypatch.setattr(app_mod, "free_bytes", lambda: 2_000_000_000)
+
+    assert app.loop.run_until_complete(app.download_model_if_needed("org/model")) is False
+    assert [type(d).__name__ for d in dialogs] == ["ErrorDialog"]
+    assert downloads == []
+
+
+def test_enough_disk_space_asks_with_size_then_downloads(app, model_missing, monkeypatch):
+    dialogs, downloads = model_missing
+    monkeypatch.setattr(app_mod, "free_bytes", lambda: 10_000_000_000)
+
+    assert app.loop.run_until_complete(app.download_model_if_needed("org/model")) is True
+    assert [type(d).__name__ for d in dialogs] == ["ConfirmDialog"]
+    assert downloads == ["org/model"]

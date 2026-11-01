@@ -11,6 +11,7 @@ author_email = "raphael.kirchner@gmail.com"
 
 [tool.briefcase.app.whisper_batch_app]
 formal_name = "Whisper Batch"
+icon = "icons/whisper_batch"  # regenerate with scripts/make_icon.py
 description = "Batch transcription of dictation archives on Apple Silicon"
 long_description = """Transcribe folders of voice recordings locally with mlx-whisper.
 """

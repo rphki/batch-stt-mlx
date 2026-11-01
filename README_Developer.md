@@ -2,7 +2,7 @@
 
 End-user install, config, and overnight usage: see [README.md](README.md).
 
-This file covers local development, tests, and promoting a working tree to the stable pipx CLI.
+This file covers local development, tests, promoting a working tree to the stable pipx CLI, the Mac app, and releases.
 
 ## Requirements (dev)
 
@@ -58,6 +58,12 @@ pytest
 
 Pytest is configured in `pyproject.toml` (`testpaths = ["tests"]`, `pythonpath = ["src"]`). Dev extra: `pip install -e ".[dev]"` (pulls in `pytest>=8`).
 
+Mac app UI tests (headless, Toga dummy backend; setup in [Mac app](#mac-app-gui)):
+
+```bash
+cd gui && .venv/bin/briefcase dev --test
+```
+
 ## Package layout
 
 ```text
@@ -89,14 +95,19 @@ A [Briefcase](https://briefcase.readthedocs.io/) + [Toga](https://toga.readthedo
 ```text
 gui/
   pyproject.toml            # Briefcase config (macOS arm64 only, min macOS 14)
+  icons/whisper_batch-*.png # app icon, 16–1024 px (from scripts/make_icon.py; .icns is generated)
   src/whisper_batch_app/
     __main__.py             # entry; handles `<app> -c CODE` re-launches (multiprocessing)
     app.py                  # window, prefs, model download, bundle self-test
     runner.py               # worker thread, thread-safe reporter, caffeinate
     i18n.py                 # de/en strings
     resources/bin/          # ffmpeg + ffprobe (downloaded, gitignored)
+    resources/licenses/     # ffmpeg GPLv3 text (committed) + NOTICE.txt (generated)
   scripts/fetch_ffmpeg.sh   # static arm64 ffmpeg/ffprobe, pinned in scripts/ffmpeg.lock (--update to bump)
-  scripts/build_dmg.sh      # fetch ffmpeg, build, self-test without Homebrew, package DMG
+  scripts/make_icon.py      # renders the icon PNGs (needs Pillow; only when the design changes)
+  scripts/make_icns.sh      # PNGs -> icons/whisper_batch.icns via iconutil (run by build_dmg.sh)
+  scripts/build_dmg.sh      # fetch ffmpeg, make .icns, build, self-test without Homebrew, package DMG
+  scripts/release.sh        # bump version, test, build, tag, publish GitHub release
   tests/                    # headless UI tests (toga-dummy)
 ```
 
@@ -113,9 +124,29 @@ Notes:
 - **Self-test of a built bundle:** `WHISPER_BATCH_SELFTEST=<folder> "build/whisper_batch_app/macos/app/Whisper Batch.app/Contents/MacOS/Whisper Batch"` transcribes the folder with `whisper-tiny` and prints `selftest:` lines to stderr (normal stdout goes to the unified log via `std-nslog`).
 - **`sys.executable` is the app stub** in the bundle. Libraries that re-launch Python with `-c` (multiprocessing's resource tracker, used via tqdm) would start a second app; `__main__.py` runs such `-c` code instead. Keep that guard.
 - **min macOS 14:** with a lower `min_os_version` pip resolves an older MLX release.
-- **Size:** app ~950 MB, DMG ~230 MB; `torch` (pulled in by mlx-whisper) is ~350 MB of that.
+- **Size:** app ~950 MB, DMG ~280 MB; `torch` (pulled in by mlx-whisper) is ~350 MB of the app.
 - **Signing:** `build_dmg.sh` signs ad hoc. For notarized releases use a Developer ID: `briefcase package macOS app` without `--adhoc-sign`.
-- **ffmpeg licence:** the downloaded static builds are typically GPL. Ship the matching licence text and source pointer with releases, or switch to an LGPL build.
+- **ffmpeg licence:** the bundled builds are GPLv3. `fetch_ffmpeg.sh` writes `NOTICE.txt` (version, pinned URLs and checksums, build configuration, links to the corresponding source) next to the committed `COPYING.GPLv3` and refuses `--enable-nonfree` builds; `build_dmg.sh` fails if either file is missing from the bundle. Nothing to do by hand.
+
+## Release
+
+One command, on an up-to-date `main`:
+
+```bash
+gui/scripts/release.sh            # 0.1.0 -> 0.1.1
+gui/scripts/release.sh minor      # 0.1.0 -> 0.2.0
+gui/scripts/release.sh major      # 0.1.0 -> 1.0.0
+gui/scripts/release.sh --dry-run  # everything up to the DMG, nothing published
+```
+
+Only prerequisite: the GitHub CLI is logged in (`gh auth login`). The script tells you what to do if anything else is off. It:
+
+1. checks: on `main`, no uncommitted changes, same commit as `origin/main`, version identical in `pyproject.toml`, `gui/pyproject.toml` and `src/mlx_whisper_batch/__init__.py`, new tag still free;
+2. creates `.venv` / `gui/.venv` if missing;
+3. sets the new version in those three files, runs core and app tests, then `build_dmg.sh` (pinned ffmpeg, licence check, bundle self-test without Homebrew);
+4. only then commits "Release vX.Y.Z", tags it, pushes `main` and the tag together, and creates the GitHub release with `WhisperBatch-X.Y.Z-macOS-arm64.dmg`, install instructions and generated notes.
+
+Any failure before step 4 restores the version files. Versions below 1.0.0 are published as pre-releases, so link users to the Releases page, not `/releases/latest` (which skips pre-releases).
 
 ## Promote to pipx
 
