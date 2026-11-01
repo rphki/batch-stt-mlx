@@ -31,6 +31,10 @@ def bundled_bin_dir() -> Path:
     return Path(__file__).parent / "resources" / "bin"
 
 
+def ffmpeg_notice() -> Path:
+    return Path(__file__).parent / "resources" / "licenses" / "ffmpeg" / "NOTICE.txt"
+
+
 def use_bundled_ffmpeg() -> None:
     """Put bundled ffmpeg/ffprobe first on PATH (core and mlx-whisper call them by name)."""
     bin_dir = bundled_bin_dir()
@@ -174,6 +178,9 @@ class WhisperBatch(toga.App):
             style=Pack(direction=COLUMN, margin=16, gap=10),
         )
 
+        if ffmpeg_notice().is_file():
+            self.commands.add(toga.Command(self.on_show_licenses, _("licenses"), group=toga.Group.HELP))
+
         self.main_window = toga.MainWindow(title=self.formal_name, size=(720, 560))
         self.main_window.content = content
         self.main_window.show()
@@ -267,6 +274,10 @@ class WhisperBatch(toga.App):
     def on_show_in_finder(self, widget):
         if self.folder is not None:
             reveal_in_finder(self.folder)
+
+    def on_show_licenses(self, command, **kwargs):
+        # Opens the folder with NOTICE.txt and COPYING.GPLv3 in Finder
+        reveal_in_finder(ffmpeg_notice().parent)
 
     def on_cancel(self, widget):
         if self.cancel_event is not None:

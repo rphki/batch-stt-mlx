@@ -11,6 +11,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 DEST="src/whisper_batch_app/resources/bin"
 LOCK="scripts/ffmpeg.lock"
+NOTICE="src/whisper_batch_app/resources/licenses/ffmpeg/NOTICE.txt"
 LATEST="https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release"
 TOOLS=(ffmpeg ffprobe)
 
@@ -55,6 +56,14 @@ if otool -L "$DEST/ffmpeg" "$DEST/ffprobe" | grep -q /opt/homebrew; then
   exit 1
 fi
 
+version_info="$("$DEST/ffmpeg" -hide_banner -version)"
+config="$(grep '^configuration:' <<< "$version_info")"
+# nonfree builds may not be redistributed at all
+if grep -q -- '--enable-nonfree' <<< "$config"; then
+  echo "error: ffmpeg build uses --enable-nonfree (not redistributable)" >&2
+  exit 1
+fi
+
 if $update; then
   {
     echo "# Pinned ffmpeg builds for the app bundle. Rewrite with: scripts/fetch_ffmpeg.sh --update"
@@ -63,4 +72,22 @@ if $update; then
   } > "$LOCK"
   echo "wrote $LOCK — review and commit it"
 fi
-"$DEST/ffmpeg" -hide_banner -version | head -1
+
+# GPL notice shipped in the app (COPYING.GPLv3 next to it is committed)
+version="$(head -1 <<< "$version_info" | sed -E 's/^ffmpeg version ([0-9.]+).*/\1/')"
+cat > "$NOTICE" <<EOF
+Whisper Batch bundles ffmpeg and ffprobe ${version}. They run as separate
+programs and are licensed under the GNU General Public License version 3
+(see COPYING.GPLv3 in this folder). Whisper Batch itself is MIT-licensed.
+
+Binaries (static macOS arm64 builds by Martin Riedl):
+$(printf '%s' "$new_lock" | awk '{ printf "  %s  %s\n  sha256 %s\n", $1, $2, $3 }')
+
+Corresponding source:
+  FFmpeg:           https://ffmpeg.org/releases/ffmpeg-${version}.tar.xz
+  Build script:     https://git.martin-riedl.de/ffmpeg/build-script
+  Library sources:  linked from https://ffmpeg.martin-riedl.de
+
+Build ${config}
+EOF
+head -1 <<< "$version_info"

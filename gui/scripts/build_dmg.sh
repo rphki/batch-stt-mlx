@@ -13,6 +13,12 @@ scripts/fetch_ffmpeg.sh
 
 "$BRIEFCASE" build macOS app -r -u --no-input
 
+# GPL: the bundled ffmpeg must ship with its licence text and source pointer
+LICENSES="$APP/Contents/Resources/app/whisper_batch_app/resources/licenses/ffmpeg"
+for f in NOTICE.txt COPYING.GPLv3; do
+  [[ -s "$LICENSES/$f" ]] || { echo "error: $f missing in app bundle" >&2; exit 1; }
+done
+
 # Smoke test: transcribe a generated clip with the bundle, without Homebrew on PATH
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT

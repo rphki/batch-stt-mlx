@@ -44,6 +44,7 @@ STRINGS: dict[str, dict[str, str]] = {
     },
     "cancelled": {"en": "Cancelled. {processed} transcribed so far.", "de": "Abgebrochen. Bisher {processed} transkribiert."},
     "error_title": {"en": "Error", "de": "Fehler"},
+    "licenses": {"en": "Third-Party Licenses", "de": "Lizenzen von Drittanbietern"},
     "quit_title": {"en": "Transcription running", "de": "Transkription läuft"},
     "quit_message": {
         "en": "Quit anyway? The current file will not be finished.",
