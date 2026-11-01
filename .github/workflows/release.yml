@@ -36,7 +36,7 @@ jobs:
     runs-on: macos-15  # Apple Silicon (MLX has arm64 wheels only)
     timeout-minutes: 60
     permissions:
-      contents: write  # push the version commit + tag, create the release
+      contents: write  # version commit via API, tag + release
     steps:
       - uses: actions/checkout@v4
         with:
@@ -70,10 +70,7 @@ jobs:
       - name: Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          gui/scripts/release.sh ${{ steps.bump.outputs.args }}
+        run: gui/scripts/release.sh ${{ steps.bump.outputs.args }}
 
       - name: Keep the DMG of a dry run
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run

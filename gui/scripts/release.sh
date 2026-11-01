@@ -129,10 +129,14 @@ fi
 
 # --- Publish -------------------------------------------------------------------
 
-git commit -q -m "Release $tag" -- "${VERSION_FILES[@]}"
-git tag -a "$tag" -m "Whisper Batch $new"
-trap - EXIT  # the bump is committed now
-git push -q --atomic origin main "$tag"
+# The version commit is created through the GitHub API, so GitHub signs it
+# ("Verified"); it is rejected if main moved since the preflight check.
+if ! oid="$(gui/scripts/api_commit.sh main "$(git rev-parse HEAD)" "Release $tag" "${VERSION_FILES[@]}")"; then
+  die "could not commit the version bump on GitHub (main changed meanwhile?) — run: git pull, then release again"
+fi
+restore_versions
+trap - EXIT
+git pull -q --ff-only origin main || warn "could not update local main — run: git pull"
 
 notes="$(mktemp)"
 cat > "$notes" <<EOF
@@ -145,10 +149,11 @@ cat > "$notes" <<EOF
 Requires an Apple Silicon Mac with macOS 14 or newer.
 EOF
 
-release_cmd=(gh release create "$tag" "$asset" --verify-tag --title "Whisper Batch $new"
+# GitHub creates the tag on exactly that commit
+release_cmd=(gh release create "$tag" "$asset" --target "$oid" --title "Whisper Batch $new"
   --generate-notes --notes-file "$notes" ${prerelease[@]+"${prerelease[@]}"})
 if ! "${release_cmd[@]}"; then
-  echo "error: $tag is pushed, but creating the GitHub release failed. Retry with:" >&2
+  echo "error: release commit $oid is on main, but creating the GitHub release failed. Retry with:" >&2
   printf '  %q' "${release_cmd[@]}" >&2
   echo >&2
   exit 1
