@@ -8,6 +8,8 @@ Repeat-loop hallucinations are detected **during** transcription (not after 30 m
 
 > **macOS Apple Silicon only.** This tool depends on MLX. It is not for Linux, Windows, or Intel Macs without MLX support.
 
+**Not a Terminal user?** Use the [Mac app](#mac-app-no-terminal): download, drag to Applications, choose a folder, press Start.
+
 CLI name: `whisper-batch` (short). Package / repo name: `mlx-whisper-batch`.
 
 Contributors: see [README_Developer.md](README_Developer.md).
@@ -21,11 +23,16 @@ Background and motivation (why this exists, local-only, overnight batching) on m
 
 **Whisper Batch.app** wraps the same transcription in a window: choose a folder, pick language and model, press **Start**. Python, MLX and ffmpeg are bundled; no Homebrew or pipx needed. Requires macOS 14+ on Apple Silicon.
 
-1. Open `Whisper Batch-<version>.dmg` and drag **Whisper Batch** into **Applications**.
-2. First launch: the app is not notarized yet, so macOS blocks it. Open **System Settings → Privacy & Security**, scroll to the message about "Whisper Batch" and click **Open Anyway**.
-3. On the first run the app offers to download the speech model (~3 GB for best quality). After that it works offline.
+1. Open the [Releases page](https://github.com/rphki/mlx-whisper-batch/releases). Under the newest release (at the top), download `WhisperBatch-<version>-macOS-arm64.dmg`.
+2. Open the DMG and drag **Whisper Batch** into **Applications**.
+3. First launch: the app is not notarized yet, so macOS blocks it. Open **System Settings → Privacy & Security**, scroll to the message about "Whisper Batch" and click **Open Anyway**.
+4. On the first run the app offers to download the speech model (~3 GB for best quality). After that it works offline.
 
 The app keeps the Mac awake while transcribing, writes the same `.txt` / `.json` / `whisper-batch.log` files as the CLI, and honours a `whisper-batch.toml` in the chosen folder (or `~/.rphki/whisper-batch.toml`); the options chosen in the window take precedence.
+
+The app bundles ffmpeg (GPL); see **Help → Third-Party Licenses**.
+
+**Uninstall:** move **Whisper Batch** from Applications to the Trash. To also free the disk space of the speech models and remove the app's settings, delete `~/.cache/huggingface/hub/models--mlx-community--whisper-*` and `~/Library/Application Support/com.aporeo.whisper-batch-app` (the models are shared with the CLI).
 
 The rest of this README covers the command-line tool.
 
