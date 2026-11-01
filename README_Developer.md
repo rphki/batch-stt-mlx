@@ -95,7 +95,7 @@ gui/
     runner.py               # worker thread, thread-safe reporter, caffeinate
     i18n.py                 # de/en strings
     resources/bin/          # ffmpeg + ffprobe (downloaded, gitignored)
-  scripts/fetch_ffmpeg.sh   # static arm64 ffmpeg/ffprobe
+  scripts/fetch_ffmpeg.sh   # static arm64 ffmpeg/ffprobe, pinned in scripts/ffmpeg.lock (--update to bump)
   scripts/build_dmg.sh      # fetch ffmpeg, build, self-test without Homebrew, package DMG
   tests/                    # headless UI tests (toga-dummy)
 ```

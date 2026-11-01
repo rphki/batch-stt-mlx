@@ -8,9 +8,8 @@ BRIEFCASE=".venv/bin/briefcase"
 APP="build/whisper_batch_app/macos/app/Whisper Batch.app"
 BIN="src/whisper_batch_app/resources/bin"
 
-if [[ ! -x "$BIN/ffmpeg" || ! -x "$BIN/ffprobe" ]]; then
-  scripts/fetch_ffmpeg.sh
-fi
+# Always re-fetch so the bundle contains exactly the builds pinned in ffmpeg.lock
+scripts/fetch_ffmpeg.sh
 
 "$BRIEFCASE" build macOS app -r -u --no-input
 

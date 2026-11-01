@@ -1,39 +1,66 @@
 #!/usr/bin/env bash
 # Download static macOS arm64 ffmpeg + ffprobe into the app's resources/bin.
 # Source: https://ffmpeg.martin-riedl.de (static builds, no Homebrew dylibs).
-# Pin checksums after verifying a download: set FFMPEG_SHA256 / FFPROBE_SHA256.
+#
+# Versions and checksums are pinned in scripts/ffmpeg.lock (commit it):
+#   fetch_ffmpeg.sh            download the pinned URLs, verify sha256
+#   fetch_ffmpeg.sh --update   resolve the latest release and rewrite the lock
+# Without a lock file the first run behaves like --update.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 DEST="src/whisper_batch_app/resources/bin"
-BASE="https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release"
-FFMPEG_SHA256="${FFMPEG_SHA256:-}"
-FFPROBE_SHA256="${FFPROBE_SHA256:-}"
+LOCK="scripts/ffmpeg.lock"
+LATEST="https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release"
+TOOLS=(ffmpeg ffprobe)
+
+update=false
+[[ "${1:-}" == "--update" || ! -f "$LOCK" ]] && update=true
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$DEST"
 
-fetch() {
-  local name="$1" expected="$2"
-  curl -fsSL -o "$tmp/$name.zip" "$BASE/$name.zip"
-  local actual
-  actual="$(shasum -a 256 "$tmp/$name.zip" | cut -d' ' -f1)"
-  if [[ -n "$expected" && "$actual" != "$expected" ]]; then
-    echo "error: checksum mismatch for $name.zip ($actual)" >&2
-    exit 1
-  fi
-  echo "$name.zip sha256: $actual"
-  unzip -o -q "$tmp/$name.zip" -d "$tmp/$name"
-  install -m 755 "$tmp/$name/$name" "$DEST/$name"
+locked() {  # locked <tool> <field: 2=url 3=sha256>
+  awk -v t="$1" -v f="$2" '$1 == t { print $f }' "$LOCK"
 }
 
-fetch ffmpeg "$FFMPEG_SHA256"
-fetch ffprobe "$FFPROBE_SHA256"
+new_lock=""
+for name in "${TOOLS[@]}"; do
+  if $update; then
+    # The "latest" link redirects to a versioned URL; pin that one
+    url="$(curl -fsSL -r 0-0 -o /dev/null -w '%{url_effective}' "$LATEST/$name.zip")"
+  else
+    url="$(locked "$name" 2)"
+    [[ -n "$url" ]] || { echo "error: $name missing in $LOCK (run with --update)" >&2; exit 1; }
+  fi
+
+  curl -fsSL -o "$tmp/$name.zip" "$url"
+  sha="$(shasum -a 256 "$tmp/$name.zip" | cut -d' ' -f1)"
+  if ! $update && [[ "$sha" != "$(locked "$name" 3)" ]]; then
+    echo "error: checksum mismatch for $url" >&2
+    echo "  expected $(locked "$name" 3)" >&2
+    echo "  got      $sha" >&2
+    exit 1
+  fi
+  new_lock+="$name $url $sha"$'\n'
+
+  unzip -o -q "$tmp/$name.zip" -d "$tmp/$name"
+  install -m 755 "$tmp/$name/$name" "$DEST/$name"
+done
 
 # Must not link against Homebrew libraries, or the app breaks on clean Macs
 if otool -L "$DEST/ffmpeg" "$DEST/ffprobe" | grep -q /opt/homebrew; then
   echo "error: binaries link against /opt/homebrew" >&2
   exit 1
+fi
+
+if $update; then
+  {
+    echo "# Pinned ffmpeg builds for the app bundle. Rewrite with: scripts/fetch_ffmpeg.sh --update"
+    echo "# tool url sha256"
+    printf '%s' "$new_lock"
+  } > "$LOCK"
+  echo "wrote $LOCK — review and commit it"
 fi
 "$DEST/ffmpeg" -hide_banner -version | head -1
