@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from mlx_whisper_batch import __version__
+from mlx_whisper_batch.audio import MissingDependencyError
 from mlx_whisper_batch.batch import run_batch
 from mlx_whisper_batch.settings import find_config_file, load_settings, merge_cli_overrides
 
@@ -62,7 +63,11 @@ def main(argv: list[str] | None = None) -> int:
     cfg = settings.config_path or find_config_file(args.config)
     if cfg:
         print(f"config: {cfg}", flush=True)
-    return run_batch(settings)
+    try:
+        return run_batch(settings)
+    except MissingDependencyError as exc:
+        print(f"error: {exc}", flush=True)
+        return 2
 
 
 if __name__ == "__main__":

@@ -8,9 +8,13 @@ from pathlib import Path
 from typing import Iterable, Sequence
 
 
+class MissingDependencyError(RuntimeError):
+    """A required external command (ffmpeg / ffprobe) is not on PATH."""
+
+
 def require_cmd(name: str) -> None:
     if shutil.which(name) is None:
-        raise SystemExit(f"error: '{name}' not found in PATH")
+        raise MissingDependencyError(f"'{name}' not found in PATH")
 
 
 def is_audio(path: Path, extensions: Sequence[str]) -> bool:
