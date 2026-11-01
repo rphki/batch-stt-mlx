@@ -13,7 +13,18 @@ scripts/fetch_ffmpeg.sh
 # Briefcase needs the macOS icon as .icns (app and DMG); derived from the committed PNGs
 scripts/make_icns.sh
 
+# Start from a fresh bundle: Briefcase writes Info.plist (e.g. the minimum macOS
+# version) only when it creates the bundle, so an old build dir keeps stale values
+rm -rf build/whisper_batch_app/macos
 "$BRIEFCASE" build macOS app -r -u --update-resources --no-input
+
+# macOS must refuse to launch on systems older than the wheels were built for
+min_os="$(sed -nE 's/^min_os_version = "([^"]+)"$/\1/p' pyproject.toml)"
+plist_min="$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$APP/Contents/Info.plist")"
+if [[ -z "$min_os" || "$plist_min" != "$min_os" ]]; then
+  echo "error: Info.plist LSMinimumSystemVersion is '$plist_min', pyproject.toml says '$min_os'" >&2
+  exit 1
+fi
 
 # GPL: the bundled ffmpeg must ship with its licence text and source pointer
 LICENSES="$APP/Contents/Resources/app/whisper_batch_app/resources/licenses/ffmpeg"
