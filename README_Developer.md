@@ -95,6 +95,7 @@ A [Briefcase](https://briefcase.readthedocs.io/) + [Toga](https://toga.readthedo
 ```text
 gui/
   pyproject.toml            # Briefcase config (macOS arm64 only, min macOS 14)
+  icons/whisper_batch-*.png # app icon, 16–1024 px (from scripts/make_icon.py; .icns is generated)
   src/whisper_batch_app/
     __main__.py             # entry; handles `<app> -c CODE` re-launches (multiprocessing)
     app.py                  # window, prefs, model download, bundle self-test
@@ -103,7 +104,9 @@ gui/
     resources/bin/          # ffmpeg + ffprobe (downloaded, gitignored)
     resources/licenses/     # ffmpeg GPLv3 text (committed) + NOTICE.txt (generated)
   scripts/fetch_ffmpeg.sh   # static arm64 ffmpeg/ffprobe, pinned in scripts/ffmpeg.lock (--update to bump)
-  scripts/build_dmg.sh      # fetch ffmpeg, build, self-test without Homebrew, package DMG
+  scripts/make_icon.py      # renders the icon PNGs (needs Pillow; only when the design changes)
+  scripts/make_icns.sh      # PNGs -> icons/whisper_batch.icns via iconutil (run by build_dmg.sh)
+  scripts/build_dmg.sh      # fetch ffmpeg, make .icns, build, self-test without Homebrew, package DMG
   scripts/release.sh        # bump version, test, build, tag, publish GitHub release
   tests/                    # headless UI tests (toga-dummy)
 ```

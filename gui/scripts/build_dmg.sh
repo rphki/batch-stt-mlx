@@ -10,8 +10,10 @@ BIN="src/whisper_batch_app/resources/bin"
 
 # Always re-fetch so the bundle contains exactly the builds pinned in ffmpeg.lock
 scripts/fetch_ffmpeg.sh
+# Briefcase needs the macOS icon as .icns (app and DMG); derived from the committed PNGs
+scripts/make_icns.sh
 
-"$BRIEFCASE" build macOS app -r -u --no-input
+"$BRIEFCASE" build macOS app -r -u --update-resources --no-input
 
 # GPL: the bundled ffmpeg must ship with its licence text and source pointer
 LICENSES="$APP/Contents/Resources/app/whisper_batch_app/resources/licenses/ffmpeg"
