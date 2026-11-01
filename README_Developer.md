@@ -108,6 +108,7 @@ gui/
   scripts/make_icns.sh      # PNGs -> icons/whisper_batch.icns via iconutil (run by build_dmg.sh)
   scripts/build_dmg.sh      # fetch ffmpeg, make .icns, build, self-test without Homebrew, package DMG
   scripts/release.sh        # bump version, test, build, tag, publish GitHub release
+  scripts/api_commit.sh     # commit files via the GitHub API (signed by GitHub, "Verified")
   tests/                    # headless UI tests (toga-dummy)
 ```
 
@@ -154,7 +155,7 @@ Only prerequisite: the GitHub CLI is logged in (`gh auth login`). The script tel
 1. checks: on `main`, no uncommitted changes, same commit as `origin/main`, version identical in `pyproject.toml`, `gui/pyproject.toml` and `src/mlx_whisper_batch/__init__.py`, new tag still free;
 2. creates `.venv` / `gui/.venv` if missing;
 3. sets the new version in those three files, runs core and app tests, then `build_dmg.sh` (pinned ffmpeg, licence check, bundle self-test without Homebrew);
-4. only then commits "Release vX.Y.Z", tags it, pushes `main` and the tag together, and creates the GitHub release with `WhisperBatch-X.Y.Z-macOS-arm64.dmg`, install instructions and generated notes.
+4. only then creates the commit "Release vX.Y.Z" on `main` through the GitHub API (so GitHub signs it and it shows as **Verified**, without any signing key; rejected if `main` moved meanwhile), and creates the GitHub release, which tags that commit, with `WhisperBatch-X.Y.Z-macOS-arm64.dmg`, install instructions and generated notes.
 
 Any failure before step 4 restores the version files. Versions below 1.0.0 are published as pre-releases, so link users to the Releases page, not `/releases/latest` (which skips pre-releases).
 
