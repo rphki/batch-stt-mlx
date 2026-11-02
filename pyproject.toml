@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mlx-whisper-batch"
+name = "batch-stt-mlx"
 version = "0.1.1"
 description = "Overnight batch transcription of dictation archives on Apple Silicon with mlx-whisper"
 readme = "README.md"
@@ -27,11 +27,11 @@ dependencies = [
 dev = ["pytest>=8.0"]
 
 [project.scripts]
-whisper-batch = "mlx_whisper_batch.cli:main"
-whisper-fix-output-names = "mlx_whisper_batch.fix_cli:main"
+batch-stt = "batch_stt_mlx.cli:main"
+batch-stt-fix-output-names = "batch_stt_mlx.fix_cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mlx_whisper_batch"]
+packages = ["src/batch_stt_mlx"]
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -39,7 +39,7 @@ include = [
   "/tests",
   "/README.md",
   "/LICENSE",
-  "/whisper-batch.example.toml",
+  "/batch-stt.example.toml",
 ]
 
 [tool.pytest.ini_options]

@@ -1,4 +1,4 @@
-# Copy to ./whisper-batch.toml (in the audio file directory) or ~/.rphki/whisper-batch.toml (global)
+# Copy to ./batch-stt.toml (in the audio file directory) or ~/.rphki/batch-stt.toml (global)
 # CLI flags override these values.
 
 model = "mlx-community/whisper-large-v3-mlx"
@@ -6,7 +6,7 @@ language = "de"  # set to "" or omit for auto-detect
 recursive = false
 force = false
 verbose = true  # true = live transcript segments
-log_name = "whisper-batch.log"
+log_name = "batch-stt.log"
 
 # Early loop detection: process audio in windows; abort + retry on repeats
 monitor_chunk_secs = 90.0

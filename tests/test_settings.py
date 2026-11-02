@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from mlx_whisper_batch.settings import (
+from batch_stt_mlx.settings import (
     Settings,
     load_settings,
     merge_cli_overrides,
@@ -31,7 +31,7 @@ def test_settings_from_toml_verbose():
 
 
 def test_load_settings_file(tmp_path: Path, monkeypatch):
-    cfg = tmp_path / "whisper-batch.toml"
+    cfg = tmp_path / "batch-stt.toml"
     cfg.write_text(
         'language = "de"\nrecursive = true\nloop_max_consecutive = 7\n',
         encoding="utf-8",

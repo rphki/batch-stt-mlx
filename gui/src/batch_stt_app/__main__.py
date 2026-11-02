@@ -18,6 +18,6 @@ if __name__ == "__main__":
     if "-c" in sys.argv[1:]:
         _run_python_c()
 
-    from whisper_batch_app.app import main
+    from batch_stt_app.app import main
 
     main().main_loop()

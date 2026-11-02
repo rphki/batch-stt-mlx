@@ -7,8 +7,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
-from mlx_whisper_batch.audio import is_audio
-from mlx_whisper_batch.settings import DEFAULT_AUDIO_EXTENSIONS
+from batch_stt_mlx.audio import is_audio
+from batch_stt_mlx.settings import DEFAULT_AUDIO_EXTENSIONS
 
 OUTPUT_SUFFIXES: tuple[str, ...] = ("txt", "json", "edits.json")
 

@@ -9,9 +9,9 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-DEST="src/whisper_batch_app/resources/bin"
+DEST="src/batch_stt_app/resources/bin"
 LOCK="scripts/ffmpeg.lock"
-NOTICE="src/whisper_batch_app/resources/licenses/ffmpeg/NOTICE.txt"
+NOTICE="src/batch_stt_app/resources/licenses/ffmpeg/NOTICE.txt"
 LATEST="https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release"
 TOOLS=(ffmpeg ffprobe)
 
@@ -76,9 +76,9 @@ fi
 # GPL notice shipped in the app (COPYING.GPLv3 next to it is committed)
 version="$(head -1 <<< "$version_info" | sed -E 's/^ffmpeg version ([0-9.]+).*/\1/')"
 cat > "$NOTICE" <<EOF
-Whisper Batch bundles ffmpeg and ffprobe ${version}. They run as separate
+BatchSTT bundles ffmpeg and ffprobe ${version}. They run as separate
 programs and are licensed under the GNU General Public License version 3
-(see COPYING.GPLv3 in this folder). Whisper Batch itself is MIT-licensed.
+(see COPYING.GPLv3 in this folder). BatchSTT itself is MIT-licensed.
 
 Binaries (static macOS arm64 builds by Martin Riedl):
 $(printf '%s' "$new_lock" | awk '{ printf "  %s  %s\n  sha256 %s\n", $1, $2, $3 }')

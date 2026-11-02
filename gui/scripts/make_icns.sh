@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Build icons/whisper_batch.icns (macOS app + DMG icon) from the committed PNGs.
+# Build icons/batch-stt.icns (macOS app + DMG icon) from the committed PNGs.
 # Called by build_dmg.sh; the PNGs come from scripts/make_icon.py.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-SRC="icons/whisper_batch"
+SRC="icons/batch-stt"
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-set="$tmp/whisper_batch.iconset"
+set="$tmp/batch-stt.iconset"
 mkdir "$set"
 
 # iconutil names: icon_<pt>x<pt>[@2x].png, @2x = double pixel size

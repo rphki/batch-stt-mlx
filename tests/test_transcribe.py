@@ -2,8 +2,8 @@
 
 import pytest
 
-from mlx_whisper_batch.settings import Settings
-from mlx_whisper_batch.transcribe import (
+from batch_stt_mlx.settings import Settings
+from batch_stt_mlx.transcribe import (
     RepeatLoopDetected,
     transcribe_chunked,
     transcribe_with_retry,

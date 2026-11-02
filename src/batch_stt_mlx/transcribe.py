@@ -6,9 +6,9 @@ import threading
 from pathlib import Path
 from typing import Any, Callable
 
-from mlx_whisper_batch.events import Cancelled, Reporter
-from mlx_whisper_batch.loops import has_repeat_loop
-from mlx_whisper_batch.settings import Settings
+from batch_stt_mlx.events import Cancelled, Reporter
+from batch_stt_mlx.loops import has_repeat_loop
+from batch_stt_mlx.settings import Settings
 
 
 class RepeatLoopDetected(RuntimeError):

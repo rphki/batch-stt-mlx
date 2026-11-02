@@ -12,12 +12,12 @@ from pathlib import Path
 import toga
 from toga.style.pack import COLUMN, ROW, Pack
 
-from mlx_whisper_batch.audio import MissingDependencyError, collect_audio_files, needs_transcription
-from mlx_whisper_batch.events import Reporter
-from mlx_whisper_batch.models import ensure_model, free_bytes, is_model_cached, missing_bytes
-from mlx_whisper_batch.settings import Settings, load_settings
-from whisper_batch_app.i18n import _
-from whisper_batch_app.runner import run_batch_async, reveal_in_finder
+from batch_stt_mlx.audio import MissingDependencyError, collect_audio_files, needs_transcription
+from batch_stt_mlx.events import Reporter
+from batch_stt_mlx.models import ensure_model, free_bytes, is_model_cached, missing_bytes
+from batch_stt_mlx.settings import Settings, load_settings
+from batch_stt_app.i18n import _
+from batch_stt_app.runner import run_batch_async, reveal_in_finder
 
 LANGUAGES = ["auto", "de", "en", "fr", "es", "it"]
 MODELS = {
@@ -46,7 +46,7 @@ def use_bundled_ffmpeg() -> None:
 
 def build_settings(folder: Path, prefs: dict) -> Settings:
     """Folder TOML (or ~/.rphki global) as base, GUI choices on top."""
-    folder_config = folder / "whisper-batch.toml"
+    folder_config = folder / "batch-stt.toml"
     return load_settings(
         config=folder_config if folder_config.is_file() else None,
         directory=folder,
@@ -65,10 +65,10 @@ def format_gb(n: int) -> str:
 
 
 def run_selftest(folder: str) -> None:
-    """Headless smoke test of the built bundle: WHISPER_BATCH_SELFTEST=<folder>."""
+    """Headless smoke test of the built bundle: BATCH_STT_SELFTEST=<folder>."""
     import shutil
 
-    from mlx_whisper_batch.batch import run_batch
+    from batch_stt_mlx.batch import run_batch
 
     class StderrReporter(Reporter):
         # std-nslog redirects sys.stdout to the unified log; write to the real stderr
@@ -77,7 +77,7 @@ def run_selftest(folder: str) -> None:
 
     reporter = StderrReporter()
     reporter.log(f"ffmpeg={shutil.which('ffmpeg')} ffprobe={shutil.which('ffprobe')}")
-    model = os.environ.get("WHISPER_BATCH_SELFTEST_MODEL", "mlx-community/whisper-tiny-mlx")
+    model = os.environ.get("BATCH_STT_SELFTEST_MODEL", "mlx-community/whisper-tiny-mlx")
     settings = load_settings(directory=Path(folder), overrides={"model": model, "force": True, "verbose": False})
     try:
         code = run_batch(settings, reporter=reporter)
@@ -91,7 +91,7 @@ def run_selftest(folder: str) -> None:
 class UiReporter(Reporter):
     """Applies batch progress to the window; called on the UI thread."""
 
-    def __init__(self, app: WhisperBatch):
+    def __init__(self, app: BatchSTT):
         self.app = app
         self.pending = 0
         self.index = 0
@@ -128,10 +128,10 @@ class UiReporter(Reporter):
             self.app.progress.value = 1.0
 
 
-class WhisperBatch(toga.App):
+class BatchSTT(toga.App):
     def startup(self):
         use_bundled_ffmpeg()
-        if selftest := os.environ.get("WHISPER_BATCH_SELFTEST"):
+        if selftest := os.environ.get("BATCH_STT_SELFTEST"):
             run_selftest(selftest)
 
         self.prefs = self.load_prefs()
@@ -360,4 +360,4 @@ class WhisperBatch(toga.App):
 
 
 def main():
-    return WhisperBatch()
+    return BatchSTT()

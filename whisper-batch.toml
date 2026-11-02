@@ -1,0 +1,21 @@
+# Copy to ./whisper-batch.toml (in the audio file directory) or ~/.rphki/whisper-batch.toml (global)
+# CLI flags override these values.
+
+model = "mlx-community/whisper-large-v3-mlx"
+language = "de"  # set to "" or omit for auto-detect
+recursive = false
+force = false
+verbose = true  # true = live transcript segments (like the old shell script)
+log_name = "whisper-batch.log"
+
+# Early loop detection: process audio in windows; abort + retry on repeats
+monitor_chunk_secs = 90.0
+loop_max_consecutive = 5
+loop_mode_fraction = 0.4
+loop_mode_min_segments = 12
+max_attempts = 2
+condition_on_previous_text_first = true
+condition_on_previous_text_retry = false
+initial_prompt_chars = 224
+
+# audio_extensions = ["wav", "mp3", "m4a", "wma", ...]  # optional override

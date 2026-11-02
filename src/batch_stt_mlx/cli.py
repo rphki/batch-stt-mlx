@@ -1,19 +1,19 @@
-"""whisper-batch CLI."""
+"""batch-stt CLI."""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
-from mlx_whisper_batch import __version__
-from mlx_whisper_batch.audio import MissingDependencyError
-from mlx_whisper_batch.batch import run_batch
-from mlx_whisper_batch.settings import find_config_file, load_settings, merge_cli_overrides
+from batch_stt_mlx import __version__
+from batch_stt_mlx.audio import MissingDependencyError
+from batch_stt_mlx.batch import run_batch
+from batch_stt_mlx.settings import find_config_file, load_settings, merge_cli_overrides
 
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="whisper-batch",
+        prog="batch-stt",
         description=(
             "Batch-transcribe dictation archives with mlx-whisper on Apple Silicon. "
             "Writes sibling .json and .txt; aborts early on repeat loops and retries."
@@ -30,7 +30,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--config",
         type=Path,
         default=None,
-        help="TOML config path (default: ./whisper-batch.toml or ~/.rphki/whisper-batch.toml)",
+        help="TOML config path (default: ./batch-stt.toml or ~/.rphki/batch-stt.toml)",
     )
     p.add_argument("-r", "--recursive", action="store_true", help="Include subdirectories")
     p.add_argument("-n", "--dry-run", action="store_true", help="List files that would be transcribed")

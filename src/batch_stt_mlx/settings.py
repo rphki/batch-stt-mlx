@@ -41,7 +41,7 @@ class Settings:
     force: bool = False
     dry_run: bool = False
     verbose: bool = False
-    log_name: str = "whisper-batch.log"
+    log_name: str = "batch-stt.log"
     monitor_chunk_secs: float = 90.0
     loop_max_consecutive: int = 5
     loop_mode_fraction: float = 0.4
@@ -59,8 +59,8 @@ def _config_search_paths(explicit: Path | None) -> list[Path]:
     if explicit is not None:
         return [explicit]
     return [
-        Path.cwd() / "whisper-batch.toml",
-        Path.home() / ".rphki" / "whisper-batch.toml",
+        Path.cwd() / "batch-stt.toml",
+        Path.home() / ".rphki" / "batch-stt.toml",
     ]
 
 
