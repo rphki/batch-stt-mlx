@@ -9,9 +9,9 @@ import threading
 from pathlib import Path
 from typing import Callable
 
-from mlx_whisper_batch.batch import run_batch
-from mlx_whisper_batch.events import Reporter
-from mlx_whisper_batch.settings import Settings
+from batch_stt_mlx.batch import run_batch
+from batch_stt_mlx.events import Reporter
+from batch_stt_mlx.settings import Settings
 
 
 class ThreadSafeReporter(Reporter):

@@ -5,11 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from mlx_whisper_batch import batch as batch_mod
-from mlx_whisper_batch import cli
-from mlx_whisper_batch.events import Cancelled, Reporter
-from mlx_whisper_batch.settings import Settings
-from mlx_whisper_batch.transcribe import transcribe_chunked
+from batch_stt_mlx import batch as batch_mod
+from batch_stt_mlx import cli
+from batch_stt_mlx.events import Cancelled, Reporter
+from batch_stt_mlx.settings import Settings
+from batch_stt_mlx.transcribe import transcribe_chunked
 
 
 class Recorder(Reporter):
@@ -121,7 +121,7 @@ def test_run_batch_cancel_mid_file(audio_dir, monkeypatch):
 
 
 def test_cli_missing_ffprobe(tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr("mlx_whisper_batch.audio.shutil.which", lambda name: None)
+    monkeypatch.setattr("batch_stt_mlx.audio.shutil.which", lambda name: None)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
     assert cli.main([str(tmp_path)]) == 2

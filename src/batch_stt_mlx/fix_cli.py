@@ -1,18 +1,18 @@
-"""whisper-fix-output-names CLI."""
+"""batch-stt-fix-output-names CLI."""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
-from mlx_whisper_batch.audio import collect_audio_files
-from mlx_whisper_batch.outputs import fix_whisper_output_names
-from mlx_whisper_batch.settings import DEFAULT_AUDIO_EXTENSIONS
+from batch_stt_mlx.audio import collect_audio_files
+from batch_stt_mlx.outputs import fix_whisper_output_names
+from batch_stt_mlx.settings import DEFAULT_AUDIO_EXTENSIONS
 
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="whisper-fix-output-names",
+        prog="batch-stt-fix-output-names",
         description=(
             "Rename mlx_whisper outputs truncated at the first dot or by length "
             "so they match the audio basename."

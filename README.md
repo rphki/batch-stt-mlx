@@ -1,4 +1,4 @@
-# mlx-whisper-batch
+# batch-stt-mlx
 
 **Batch transcription** of dictation archives on **Apple Silicon** using [mlx-whisper](https://github.com/ml-explore/mlx-examples/tree/main/whisper).
 
@@ -10,7 +10,7 @@ Repeat-loop hallucinations are detected **during** transcription (not after 30 m
 
 **Not a Terminal user?** Use the [Mac app](#mac-app-no-terminal): download, drag to Applications, choose a folder, press Start.
 
-CLI name: `whisper-batch` (short). Package / repo name: `mlx-whisper-batch`.
+CLI name: `batch-stt` (short). Package / repo name: `batch-stt-mlx`.
 
 Contributors: see [README_Developer.md](README_Developer.md).
 
@@ -21,18 +21,18 @@ Background and motivation (why this exists, local-only, overnight batching) on m
 
 ## Mac app (no Terminal)
 
-**Whisper Batch.app** wraps the same transcription in a window: choose a folder, pick language and model, press **Start**. Python, MLX and ffmpeg are bundled; no Homebrew or pipx needed. Requires macOS 14+ on Apple Silicon.
+**BatchSTT.app** wraps the same transcription in a window: choose a folder, pick language and model, press **Start**. Python, MLX and ffmpeg are bundled; no Homebrew or pipx needed. Requires macOS 14+ on Apple Silicon.
 
-1. Open the [Releases page](https://github.com/rphki/mlx-whisper-batch/releases). Under the newest release (at the top), download `WhisperBatch-<version>-macOS-arm64.dmg`.
-2. Open the DMG and drag **Whisper Batch** into **Applications**.
-3. First launch: the app is not notarized yet, so macOS blocks it. Open **System Settings → Privacy & Security**, scroll to the message about "Whisper Batch" and click **Open Anyway**.
+1. Open the [Releases page](https://github.com/rphki/batch-stt-mlx/releases). Under the newest release (at the top), download `BatchSTT-<version>-macOS-arm64.dmg`.
+2. Open the DMG and drag **BatchSTT** into **Applications**.
+3. First launch: the app is not notarized yet, so macOS blocks it. Open **System Settings → Privacy & Security**, scroll to the message about "BatchSTT" and click **Open Anyway**.
 4. On the first run the app offers to download the speech model (~3 GB for best quality). After that it works offline.
 
-The app keeps the Mac awake while transcribing, writes the same `.txt` / `.json` / `whisper-batch.log` files as the CLI, and honours a `whisper-batch.toml` in the chosen folder (or `~/.rphki/whisper-batch.toml`); the options chosen in the window take precedence.
+The app keeps the Mac awake while transcribing, writes the same `.txt` / `.json` / `batch-stt.log` files as the CLI, and honours a `batch-stt.toml` in the chosen folder (or `~/.rphki/batch-stt.toml`); the options chosen in the window take precedence.
 
 The app bundles ffmpeg (GPL); see **Help → Third-Party Licenses**.
 
-**Uninstall:** move **Whisper Batch** from Applications to the Trash. To also free the disk space of the speech models and remove the app's settings, delete `~/.cache/huggingface/hub/models--mlx-community--whisper-*` and `~/Library/Application Support/com.aporeo.whisper-batch-app` (the models are shared with the CLI).
+**Uninstall:** move **BatchSTT** from Applications to the Trash. To also free the disk space of the speech models and remove the app's settings, delete `~/.cache/huggingface/hub/models--mlx-community--whisper-*` and `~/Library/Application Support/com.rphki.batch-stt-app` (the models are shared with the CLI).
 
 The rest of this README covers the command-line tool.
 
@@ -56,7 +56,7 @@ ffprobe -version
 
 If `python3` is still older than 3.11, use Homebrew’s binary explicitly (e.g. `/opt/homebrew/bin/python3.12`) when creating a venv, or ensure that `python3` points at 3.12.
 
-## Install whisper-batch
+## Install batch-stt
 
 **No PyPI upload required.** GitHub (or a local clone) is enough.
 
@@ -64,23 +64,23 @@ If `python3` is still older than 3.11, use Homebrew’s binary explicitly (e.g. 
 brew install pipx
 pipx ensurepath   # then open a new terminal if needed
 
-git clone https://github.com/rphki/mlx-whisper-batch.git
-cd mlx-whisper-batch
+git clone https://github.com/rphki/batch-stt-mlx.git
+cd batch-stt-mlx
 pipx install .
 ```
 
 Or without cloning first:
 
 ```bash
-pipx install git+https://github.com/rphki/mlx-whisper-batch.git
+pipx install git+https://github.com/rphki/batch-stt-mlx.git
 ```
 
-`pipx install` pulls in `mlx-whisper` and its dependencies (MLX, PyTorch, …) into an isolated environment. After that, `whisper-batch` is on your PATH (`~/.local/bin`). No copying into `/usr/local/bin`.
+`pipx install` pulls in `mlx-whisper` and its dependencies (MLX, PyTorch, …) into an isolated environment. After that, `batch-stt` is on your PATH (`~/.local/bin`). No copying into `/usr/local/bin`.
 
 Update after `git pull` (pipx environment name = package name, not `.` and not the CLI name):
 
 ```bash
-pipx reinstall mlx-whisper-batch
+pipx reinstall batch-stt-mlx
 ```
 
 Or from the repo root: `pipx install . --force`.
@@ -97,13 +97,13 @@ Copy the example and edit:
 
 ```bash
 # to the audio file directory (for dir specific language setting etc.)
-cp whisper-batch.example.toml whisper-batch.toml
+cp batch-stt.example.toml batch-stt.toml
 # or to vendor dir (global = user-wide):
 mkdir -p ~/.rphki
-cp whisper-batch.example.toml ~/.rphki/whisper-batch.toml
+cp batch-stt.example.toml ~/.rphki/batch-stt.toml
 ```
 
-Search order: `--config PATH` → `./whisper-batch.toml` → `~/.rphki/whisper-batch.toml`.
+Search order: `--config PATH` → `./batch-stt.toml` → `~/.rphki/batch-stt.toml`.
 
 CLI flags override the file. Important keys:
 
@@ -120,25 +120,25 @@ CLI flags override the file. Important keys:
 ## Usage
 
 ```bash
-whisper-batch /path/to/dictation-archive
-whisper-batch /path/to/archive --dry-run
-whisper-batch /path/to/archive --recursive
-whisper-batch /path/to/archive --force
-whisper-batch /path/to/archive -m mlx-community/whisper-large-v3-mlx -l de
-whisper-batch /path/to/archive -v   # live transcript segments
+batch-stt /path/to/dictation-archive
+batch-stt /path/to/archive --dry-run
+batch-stt /path/to/archive --recursive
+batch-stt /path/to/archive --force
+batch-stt /path/to/archive -m mlx-community/whisper-large-v3-mlx -l de
+batch-stt /path/to/archive -v   # live transcript segments
 ```
 
 Overnight tip (prevent sleep):
 
 ```bash
-caffeinate -i whisper-batch /path/to/archive --recursive
+caffeinate -i batch-stt /path/to/archive --recursive
 ```
 
 Also check **System Settings → Energy** so the Mac does not sleep mid-batch.
 
 ### Timing log
 
-Each file appends a line to `<DIR>/whisper-batch.log`:
+Each file appends a line to `<DIR>/batch-stt.log`:
 
 ```text
 <path> <audio m:ss> <whisper m:ss> <realtime-factor> [attempt=N]
@@ -153,11 +153,11 @@ For `interview.m4a`:
 - `interview.json` — full mlx-whisper result (segments, etc.)
 - `interview.txt` — one stripped segment per line
 
-If mlx ever writes a truncated basename, `whisper-batch` renames it. You can also fix a folder later:
+If mlx ever writes a truncated basename, `batch-stt` renames it. You can also fix a folder later:
 
 ```bash
-whisper-fix-output-names /path/to/folder
-whisper-fix-output-names /path/to/folder --dry-run
+batch-stt-fix-output-names /path/to/folder
+batch-stt-fix-output-names /path/to/folder --dry-run
 ```
 
 ## Repeat-loop detection

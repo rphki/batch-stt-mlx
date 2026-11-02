@@ -1,4 +1,4 @@
-# Build and publish Whisper Batch.app via gui/scripts/release.sh on an Apple Silicon runner.
+# Build and publish BatchSTT.app via gui/scripts/release.sh on an Apple Silicon runner.
 #
 # Release: merge a PR into main that carries one of these labels
 #   release        -> next patch version (0.1.0 -> 0.1.1)
@@ -77,5 +77,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dmg-dry-run
-          path: gui/dist/WhisperBatch-*-macOS-arm64.dmg
+          path: gui/dist/BatchSTT-*-macOS-arm64.dmg
           retention-days: 7

@@ -64,7 +64,7 @@ def main():
     OUT.mkdir(exist_ok=True)
     img = render()
     for size in SIZES:
-        img.resize((size, size), Image.LANCZOS).save(OUT / f"whisper_batch-{size}.png")
+        img.resize((size, size), Image.LANCZOS).save(OUT / f"batch-stt-{size}.png")
 
 
 if __name__ == "__main__":

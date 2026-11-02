@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import huggingface_hub
 
-from mlx_whisper_batch.models import free_bytes, missing_bytes
+from batch_stt_mlx.models import free_bytes, missing_bytes
 
 
 def test_free_bytes_walks_up_to_existing_dir(tmp_path):

@@ -6,7 +6,7 @@ import threading
 import time
 from pathlib import Path
 
-from mlx_whisper_batch.audio import (
+from batch_stt_mlx.audio import (
     audio_duration_secs,
     collect_audio_files,
     format_mmss,
@@ -14,10 +14,10 @@ from mlx_whisper_batch.audio import (
     realtime_factor,
     require_cmd,
 )
-from mlx_whisper_batch.events import Cancelled, Reporter
-from mlx_whisper_batch.outputs import fix_whisper_output_names, remove_outputs, write_result_files
-from mlx_whisper_batch.settings import Settings
-from mlx_whisper_batch.transcribe import RepeatLoopDetected, transcribe_with_retry
+from batch_stt_mlx.events import Cancelled, Reporter
+from batch_stt_mlx.outputs import fix_whisper_output_names, remove_outputs, write_result_files
+from batch_stt_mlx.settings import Settings
+from batch_stt_mlx.transcribe import RepeatLoopDetected, transcribe_with_retry
 
 
 def append_timing_log(

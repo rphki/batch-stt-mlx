@@ -1,7 +1,7 @@
 # Generated with Briefcase 0.4.7 (briefcase-template v0.4.7), trimmed to macOS arm64.
 [tool.briefcase]
-project_name = "whisper-batch-app"
-bundle = "com.aporeo"
+project_name = "batch-stt-app"
+bundle = "com.rphki"
 version = "0.1.1"
 url = "https://aporeo.com/en/articles/mlx-whisper-batch"
 license = "MIT"
@@ -9,14 +9,14 @@ license-files = ["../LICENSE"]
 author = "Raphael Kirchner"
 author_email = "raphael.kirchner@gmail.com"
 
-[tool.briefcase.app.whisper_batch_app]
-formal_name = "Whisper Batch"
-icon = "icons/whisper_batch"  # regenerate with scripts/make_icon.py
+[tool.briefcase.app.batch_stt_app]
+formal_name = "BatchSTT"
+icon = "icons/batch-stt"  # regenerate with scripts/make_icon.py
 description = "Batch transcription of dictation archives on Apple Silicon"
 long_description = """Transcribe folders of voice recordings locally with mlx-whisper.
 """
 sources = [
-    "src/whisper_batch_app",
+    "src/batch_stt_app",
 ]
 requires = [
     # Core package from the repo root (CLI + transcription logic)
@@ -30,7 +30,7 @@ test_requires = [
     "toga-dummy~=0.5.0",
 ]
 
-[tool.briefcase.app.whisper_batch_app.macOS]
+[tool.briefcase.app.batch_stt_app.macOS]
 # MLX ships arm64 wheels only
 universal_build = false
 min_os_version = "14.0"

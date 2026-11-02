@@ -1,4 +1,4 @@
-# mlx-whisper-batch — Developer notes
+# batch-stt-mlx — Developer notes
 
 End-user install, config, and overnight usage: see [README.md](README.md).
 
@@ -13,7 +13,7 @@ Same as users: Apple Silicon, `ffmpeg` / `ffprobe`, Python 3.11+. Plus a clone o
 Keep a **stable** pipx install for overnight jobs, and a **venv** for development:
 
 ```bash
-cd mlx-whisper-batch
+cd batch-stt-mlx
 
 # stable CLI (frozen copy inside pipx)
 pipx install .
@@ -23,16 +23,16 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 pytest
-whisper-batch --dry-run /path/to/folder   # uses working tree
+batch-stt --dry-run /path/to/folder   # uses working tree
 deactivate
 
 # overnight still uses pipx until you promote:
-whisper-batch /path/to/archive
+batch-stt /path/to/archive
 # when happy:
-pipx reinstall mlx-whisper-batch
+pipx reinstall batch-stt-mlx
 ```
 
-With the venv activated, its `bin/` wins over `~/.local/bin`. Check with `which whisper-batch` if unsure.
+With the venv activated, its `bin/` wins over `~/.local/bin`. Check with `which batch-stt` if unsure.
 
 Shortcut (one install always tracks the working tree): `pipx install --editable .` — convenient, but overnight will run unfinished edits.
 
@@ -41,13 +41,13 @@ Shortcut (one install always tracks the working tree): `pipx install --editable 
 If you do not need a separate overnight pipx copy:
 
 ```bash
-cd mlx-whisper-batch
+cd batch-stt-mlx
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-`whisper-batch` and `whisper-fix-output-names` then resolve to the working tree.
+`batch-stt` and `batch-stt-fix-output-names` then resolve to the working tree.
 
 ## Tests
 
@@ -67,9 +67,9 @@ cd gui && .venv/bin/briefcase dev --test
 ## Package layout
 
 ```text
-src/mlx_whisper_batch/
-  cli.py          # whisper-batch entry
-  fix_cli.py      # whisper-fix-output-names entry
+src/batch_stt_mlx/
+  cli.py          # batch-stt entry
+  fix_cli.py      # batch-stt-fix-output-names entry
   batch.py        # folder scan, orchestration, timing log
   transcribe.py   # chunked mlx-whisper + retry
   loops.py        # repeat-loop heuristics
@@ -79,24 +79,24 @@ src/mlx_whisper_batch/
   events.py       # Reporter (progress hooks) + Cancelled
   models.py       # model cache check + download with progress
 tests/            # pytest suite
-whisper-batch.example.toml
+batch-stt.example.toml
 pyproject.toml    # hatchling, scripts, optional [dev]
 ```
 
 Entry points (from `pyproject.toml`):
 
-- `whisper-batch` → `mlx_whisper_batch.cli:main`
-- `whisper-fix-output-names` → `mlx_whisper_batch.fix_cli:main`
+- `batch-stt` → `batch_stt_mlx.cli:main`
+- `batch-stt-fix-output-names` → `batch_stt_mlx.fix_cli:main`
 
 ## Mac app (`gui/`)
 
-A [Briefcase](https://briefcase.readthedocs.io/) + [Toga](https://toga.readthedocs.io/) app that depends on the core package via `requires = ["../"]` in `gui/pyproject.toml`. The core reports progress through `mlx_whisper_batch.events.Reporter` and supports cancellation via a `threading.Event`; the CLI uses the printing default.
+A [Briefcase](https://briefcase.readthedocs.io/) + [Toga](https://toga.readthedocs.io/) app that depends on the core package via `requires = ["../"]` in `gui/pyproject.toml`. The core reports progress through `batch_stt_mlx.events.Reporter` and supports cancellation via a `threading.Event`; the CLI uses the printing default.
 
 ```text
 gui/
   pyproject.toml            # Briefcase config (macOS arm64 only, min macOS 14)
-  icons/whisper_batch-*.png # app icon, 16–1024 px (from scripts/make_icon.py; .icns is generated)
-  src/whisper_batch_app/
+  icons/batch-stt-*.png # app icon, 16–1024 px (from scripts/make_icon.py; .icns is generated)
+  src/batch_stt_app/
     __main__.py             # entry; handles `<app> -c CODE` re-launches (multiprocessing)
     app.py                  # window, prefs, model download, bundle self-test
     runner.py               # worker thread, thread-safe reporter, caffeinate
@@ -105,7 +105,7 @@ gui/
     resources/licenses/     # ffmpeg GPLv3 text (committed) + NOTICE.txt (generated)
   scripts/fetch_ffmpeg.sh   # static arm64 ffmpeg/ffprobe, pinned in scripts/ffmpeg.lock (--update to bump)
   scripts/make_icon.py      # renders the icon PNGs (needs Pillow; only when the design changes)
-  scripts/make_icns.sh      # PNGs -> icons/whisper_batch.icns via iconutil (run by build_dmg.sh)
+  scripts/make_icns.sh      # PNGs -> icons/batch-stt.icns via iconutil (run by build_dmg.sh)
   scripts/build_dmg.sh      # fetch ffmpeg, make .icns, build, self-test without Homebrew, package DMG
   scripts/release.sh        # bump version, test, build, tag, publish GitHub release
   scripts/api_commit.sh     # commit files via the GitHub API (signed by GitHub, "Verified")
@@ -117,12 +117,12 @@ cd gui
 python3.12 -m venv .venv && .venv/bin/pip install briefcase
 .venv/bin/briefcase dev            # run from source
 .venv/bin/briefcase dev --test     # UI tests
-scripts/build_dmg.sh               # → gui/dist/Whisper Batch-<version>.dmg
+scripts/build_dmg.sh               # → gui/dist/BatchSTT-<version>.dmg
 ```
 
 Notes:
 
-- **Self-test of a built bundle:** `WHISPER_BATCH_SELFTEST=<folder> "build/whisper_batch_app/macos/app/Whisper Batch.app/Contents/MacOS/Whisper Batch"` transcribes the folder with `whisper-tiny` and prints `selftest:` lines to stderr (normal stdout goes to the unified log via `std-nslog`).
+- **Self-test of a built bundle:** `BATCH_STT_SELFTEST=<folder> "build/batch_stt_app/macos/app/BatchSTT.app/Contents/MacOS/BatchSTT"` transcribes the folder with `whisper-tiny` and prints `selftest:` lines to stderr (normal stdout goes to the unified log via `std-nslog`).
 - **`sys.executable` is the app stub** in the bundle. Libraries that re-launch Python with `-c` (multiprocessing's resource tracker, used via tqdm) would start a second app; `__main__.py` runs such `-c` code instead. Keep that guard.
 - **min macOS 14:** with a lower `min_os_version` pip resolves an older MLX release.
 - **Size:** app ~950 MB, DMG ~280 MB; `torch` (pulled in by mlx-whisper) is ~350 MB of the app.
@@ -152,10 +152,10 @@ gui/scripts/release.sh --dry-run  # everything up to the DMG, nothing published
 
 Only prerequisite: the GitHub CLI is logged in (`gh auth login`). The script tells you what to do if anything else is off. It:
 
-1. checks: on `main`, no uncommitted changes, same commit as `origin/main`, version identical in `pyproject.toml`, `gui/pyproject.toml` and `src/mlx_whisper_batch/__init__.py`, new tag still free;
+1. checks: on `main`, no uncommitted changes, same commit as `origin/main`, version identical in `pyproject.toml`, `gui/pyproject.toml` and `src/batch_stt_mlx/__init__.py`, new tag still free;
 2. creates `.venv` / `gui/.venv` if missing;
 3. sets the new version in those three files, runs core and app tests, then `build_dmg.sh` (pinned ffmpeg, licence check, bundle self-test without Homebrew);
-4. only then creates the commit "Release vX.Y.Z" on `main` through the GitHub API (so GitHub signs it and it shows as **Verified**, without any signing key; rejected if `main` moved meanwhile), and creates the GitHub release, which tags that commit, with `WhisperBatch-X.Y.Z-macOS-arm64.dmg`, install instructions and generated notes.
+4. only then creates the commit "Release vX.Y.Z" on `main` through the GitHub API (so GitHub signs it and it shows as **Verified**, without any signing key; rejected if `main` moved meanwhile), and creates the GitHub release, which tags that commit, with `BatchSTT-X.Y.Z-macOS-arm64.dmg`, install instructions and generated notes.
 
 Any failure before step 4 restores the version files. Versions below 1.0.0 are published as pre-releases, so link users to the Releases page, not `/releases/latest` (which skips pre-releases).
 
@@ -165,9 +165,9 @@ When the editable tree looks good for overnight use:
 
 ```bash
 deactivate   # optional; pipx does not need the venv
-pipx reinstall mlx-whisper-batch
+pipx reinstall batch-stt-mlx
 # or from the repo root: pipx install . --force
-which whisper-batch   # expect ~/.local/bin/whisper-batch
+which batch-stt   # expect ~/.local/bin/batch-stt
 ```
 
-That freezes the current tree into pipx again (`reinstall` uses the package/environment name `mlx-whisper-batch`, not `.` or the CLI name). Further edits stay in the venv until the next reinstall.
+That freezes the current tree into pipx again (`reinstall` uses the package/environment name `batch-stt-mlx`, not `.` or the CLI name). Further edits stay in the venv until the next reinstall.

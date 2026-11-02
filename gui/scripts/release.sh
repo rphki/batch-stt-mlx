@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Release Whisper Batch: bump the version, test, build the DMG, tag, publish on GitHub.
+# Release BatchSTT: bump the version, test, build the DMG, tag, publish on GitHub.
 #
 #   gui/scripts/release.sh                 next patch version (0.1.0 -> 0.1.1)
 #   gui/scripts/release.sh minor|major     next minor / major version
@@ -11,7 +11,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/../.."
 REPO_ROOT="$PWD"
-VERSION_FILES=(pyproject.toml gui/pyproject.toml src/mlx_whisper_batch/__init__.py)
+VERSION_FILES=(pyproject.toml gui/pyproject.toml src/batch_stt_mlx/__init__.py)
 
 die() { echo "error: $*" >&2; exit 1; }
 warn() { echo "warning: $*" >&2; }
@@ -95,7 +95,7 @@ restore_versions() { git -C "$REPO_ROOT" checkout -q -- "${VERSION_FILES[@]}"; }
 trap restore_versions EXIT
 
 sed -i '' -E "s/^version = \"$current\"$/version = \"$new\"/" pyproject.toml gui/pyproject.toml
-sed -i '' -E "s/^__version__ = \"$current\"$/__version__ = \"$new\"/" src/mlx_whisper_batch/__init__.py
+sed -i '' -E "s/^__version__ = \"$current\"$/__version__ = \"$new\"/" src/batch_stt_mlx/__init__.py
 for f in "${VERSION_FILES[@]}"; do
   [[ "$(read_version "$f")" == "$new" ]] || die "could not set version in $f"
 done
@@ -112,9 +112,9 @@ grep -q "Test suite passed" "$gui_log" || { tail -40 "$gui_log" >&2; die "app te
 
 echo "building DMG…"
 gui/scripts/build_dmg.sh
-built="gui/dist/Whisper Batch-$new.dmg"
+built="gui/dist/BatchSTT-$new.dmg"
 [[ -f "$built" ]] || die "expected $built after build"
-asset="gui/dist/WhisperBatch-$new-macOS-arm64.dmg"
+asset="gui/dist/BatchSTT-$new-macOS-arm64.dmg"
 cp "$built" "$asset"
 
 prerelease=()
@@ -142,15 +142,15 @@ notes="$(mktemp)"
 cat > "$notes" <<EOF
 ## Install
 
-1. Download **WhisperBatch-$new-macOS-arm64.dmg** below, open it and drag **Whisper Batch** into **Applications**.
-2. First launch: macOS blocks the app because it is not notarized yet. Open **System Settings → Privacy & Security** and click **Open Anyway** next to the message about Whisper Batch.
+1. Download **BatchSTT-$new-macOS-arm64.dmg** below, open it and drag **BatchSTT** into **Applications**.
+2. First launch: macOS blocks the app because it is not notarized yet. Open **System Settings → Privacy & Security** and click **Open Anyway** next to the message about BatchSTT.
 3. On the first run the app offers to download the speech model; after that it works offline.
 
 Requires an Apple Silicon Mac with macOS 14 or newer.
 EOF
 
 # GitHub creates the tag on exactly that commit
-release_cmd=(gh release create "$tag" "$asset" --target "$oid" --title "Whisper Batch $new"
+release_cmd=(gh release create "$tag" "$asset" --target "$oid" --title "BatchSTT $new"
   --generate-notes --notes-file "$notes" ${prerelease[@]+"${prerelease[@]}"})
 if ! "${release_cmd[@]}"; then
   echo "error: release commit $oid is on main, but creating the GitHub release failed. Retry with:" >&2

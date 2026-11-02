@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from mlx_whisper_batch.outputs import (
+from batch_stt_mlx.outputs import (
     find_orphan_output,
     fix_whisper_output_names,
     write_result_files,

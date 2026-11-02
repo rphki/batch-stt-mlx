@@ -70,7 +70,7 @@ def _preferred_language() -> str:
     return os.environ.get("LANG", "en")
 
 
-LANG = os.environ.get("WHISPER_BATCH_UI_LANG") or ("de" if _preferred_language().lower().startswith("de") else "en")
+LANG = os.environ.get("BATCH_STT_UI_LANG") or ("de" if _preferred_language().lower().startswith("de") else "en")
 
 
 def _(key: str, **kwargs: object) -> str:

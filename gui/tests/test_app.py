@@ -8,10 +8,10 @@ import pytest
 
 os.environ["TOGA_BACKEND"] = "toga_dummy"
 
-from mlx_whisper_batch import batch as batch_mod  # noqa: E402
-from mlx_whisper_batch.transcribe import transcribe_chunked  # noqa: E402
-from whisper_batch_app import app as app_mod  # noqa: E402
-from whisper_batch_app import i18n, runner  # noqa: E402
+from batch_stt_mlx import batch as batch_mod  # noqa: E402
+from batch_stt_mlx.transcribe import transcribe_chunked  # noqa: E402
+from batch_stt_app import app as app_mod  # noqa: E402
+from batch_stt_app import i18n, runner  # noqa: E402
 
 
 @pytest.fixture
@@ -29,13 +29,13 @@ def app(tmp_path, folder, monkeypatch):
     monkeypatch.setattr(i18n, "LANG", "en")
     prefs = tmp_path / "prefs.json"
     prefs.write_text(json.dumps({"folder": str(folder), "language": "de"}))
-    monkeypatch.setattr(app_mod.WhisperBatch, "prefs_file", property(lambda self: prefs))
+    monkeypatch.setattr(app_mod.BatchSTT, "prefs_file", property(lambda self: prefs))
     monkeypatch.setattr(app_mod, "is_model_cached", lambda model: True)
     monkeypatch.setattr(batch_mod, "require_cmd", lambda name: None)
     monkeypatch.setattr(batch_mod, "audio_duration_secs", lambda path: 120.0)
     monkeypatch.setattr(runner.KeepAwake, "__enter__", lambda self: self)
     monkeypatch.setattr(runner.KeepAwake, "__exit__", lambda self, *exc: None)
-    return app_mod.WhisperBatch(formal_name="Whisper Batch", app_id="com.aporeo.whisper-batch-app-test")
+    return app_mod.BatchSTT(formal_name="BatchSTT", app_id="com.rphki.batch-stt-app-test")
 
 
 def test_startup_restores_prefs_and_counts_pending(app, folder):

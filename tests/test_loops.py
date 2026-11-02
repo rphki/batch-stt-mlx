@@ -1,6 +1,6 @@
 """Tests for repeat-loop detection."""
 
-from mlx_whisper_batch.loops import has_repeat_loop, max_consecutive_run, normalize_line
+from batch_stt_mlx.loops import has_repeat_loop, max_consecutive_run, normalize_line
 
 
 def segs(*texts: str):
