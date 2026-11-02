@@ -23,6 +23,8 @@ Background and motivation (why this exists, local-only, overnight batching) on m
 
 **BatchSTT.app** wraps the same transcription in a window: choose a folder, pick language and model, press **Start**. Python, MLX and ffmpeg are bundled; no Homebrew or pipx needed. Requires macOS 14+ on Apple Silicon.
 
+![BatchSTT main window after a finished run, with the About box](docs/batchstt-app-window-and-about.png)
+
 1. Open the [Releases page](https://github.com/rphki/batch-stt-mlx/releases). Under the newest release (at the top), download `BatchSTT-<version>-macOS-arm64.dmg`.
 2. Open the DMG and drag **BatchSTT** into **Applications**.
 3. First launch: the app is not notarized yet, so macOS blocks it. Open **System Settings → Privacy & Security**, scroll to the message about "BatchSTT" and click **Open Anyway**.
