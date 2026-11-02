@@ -18,8 +18,15 @@ scripts/make_icns.sh
 rm -rf build/batch_stt_app/macos
 "$BRIEFCASE" build macOS app -r -u --update-resources --no-input
 
-# macOS must refuse to launch on systems older than the wheels were built for
+# Accent colour (NSAccentColorName in Info.plist) needs a compiled asset catalog
 min_os="$(sed -nE 's/^min_os_version = "([^"]+)"$/\1/p' pyproject.toml)"
+partial="$(mktemp)"
+xcrun actool assets/Assets.xcassets --compile "$APP/Contents/Resources" --platform macosx \
+  --minimum-deployment-target "$min_os" --output-partial-info-plist "$partial" --output-format human-readable-text >/dev/null
+rm "$partial"
+[[ -s "$APP/Contents/Resources/Assets.car" ]] || { echo "error: Assets.car missing in app bundle" >&2; exit 1; }
+
+# macOS must refuse to launch on systems older than the wheels were built for
 plist_min="$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$APP/Contents/Info.plist")"
 if [[ -z "$min_os" || "$plist_min" != "$min_os" ]]; then
   echo "error: Info.plist LSMinimumSystemVersion is '$plist_min', pyproject.toml says '$min_os'" >&2
