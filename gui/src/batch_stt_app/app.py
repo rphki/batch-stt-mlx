@@ -25,6 +25,7 @@ MODELS = {
     "mlx-community/whisper-large-v3-turbo": "model_turbo",
     "mlx-community/whisper-small-mlx": "model_small",
 }
+COPYRIGHT = "Copyright 2026 Raphael Kirchner\nMIT"  # About box; keep in sync with LICENSE
 # Headroom beyond the model download itself (transcripts, temp files, the OS)
 DISK_MARGIN = 1_000_000_000
 
@@ -280,6 +281,24 @@ class BatchSTT(toga.App):
     def on_show_licenses(self, command, **kwargs):
         # Opens the folder with NOTICE.txt and COPYING.GPLv3 in Finder
         reveal_in_finder(ffmpeg_notice().parent)
+
+    def about(self):
+        # Same panel as Toga's, which hard-codes "Copyright © <author>"; ours names year and licence
+        from rubicon.objc import NSMutableDictionary
+        from toga_cocoa.libs import (
+            NSAboutPanelOptionApplicationIcon,
+            NSAboutPanelOptionApplicationName,
+            NSAboutPanelOptionApplicationVersion,
+            NSAboutPanelOptionVersion,
+        )
+
+        options = NSMutableDictionary.alloc().init()
+        options[NSAboutPanelOptionApplicationIcon] = self.icon._impl.native
+        options[NSAboutPanelOptionApplicationName] = self.formal_name
+        options[NSAboutPanelOptionApplicationVersion] = self.version or "0.0"
+        options[NSAboutPanelOptionVersion] = "1"
+        options["Copyright"] = COPYRIGHT
+        self._impl.native.orderFrontStandardAboutPanelWithOptions(options)
 
     def on_cancel(self, widget):
         if self.cancel_event is not None:
