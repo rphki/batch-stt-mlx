@@ -189,4 +189,4 @@ Raphael Kirchner [customwebcode.com](https://customwebcode.com)
 
 Code: MIT, see [LICENSE](LICENSE).
 
-The BatchSTT icon and artwork (`gui/icons/`, `gui/scripts/make_icon.py`) are not covered by the MIT License: all rights reserved, see [gui/icons/LICENSE](gui/icons/LICENSE). Forks must use their own icon.
+The BatchSTT icon and artwork (`gui/icons/`, `gui/scripts/make_icon.py`) are not covered by the MIT License: all rights reserved, see [gui/icons/LICENSE](gui/icons/LICENSE). If you fork BatchSTT or build your own app from it, replace the icon with your own design; [README_Developer.md](README_Developer.md#mac-app-gui) says how.

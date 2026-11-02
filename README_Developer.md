@@ -127,6 +127,7 @@ Notes:
 - **min macOS 14:** with a lower `min_os_version` pip resolves an older MLX release.
 - **Size:** app ~950 MB, DMG ~280 MB; `torch` (pulled in by mlx-whisper) is ~350 MB of the app.
 - **Signing:** `build_dmg.sh` signs ad hoc. For notarized releases use a Developer ID: `briefcase package macOS app` without `--adhoc-sign`.
+- **Icon in forks:** the icon (`icons/`, `scripts/make_icon.py`) is not MIT, see [gui/icons/LICENSE](gui/icons/LICENSE). A fork must ship its own: delete `scripts/make_icon.py` and `icons/LICENSE`, and replace `icons/batch-stt-{16,32,64,128,256,512,1024}.png` with your own square PNGs of those pixel sizes under the same names. `make_icns.sh` builds the `.icns` from them as before.
 - **ffmpeg licence:** the bundled builds are GPLv3. `fetch_ffmpeg.sh` writes `NOTICE.txt` (version, pinned URLs and checksums, build configuration, links to the corresponding source) next to the committed `COPYING.GPLv3` and refuses `--enable-nonfree` builds; `build_dmg.sh` fails if either file is missing from the bundle. Nothing to do by hand.
 
 ## Release
