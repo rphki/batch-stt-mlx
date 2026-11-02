@@ -28,7 +28,9 @@ Background and motivation (why this exists, local-only, overnight batching) on m
 3. First launch: the app is not notarized yet, so macOS blocks it. Open **System Settings → Privacy & Security**, scroll to the message about "BatchSTT" and click **Open Anyway**.
 4. On the first run the app offers to download the speech model (~3 GB for best quality). After that it works offline.
 
-The app keeps the Mac awake while transcribing, writes the same `.txt` / `.json` / `batch-stt.log` files as the CLI, and honours a `batch-stt.toml` in the chosen folder (or `~/.rphki/batch-stt.toml`); the options chosen in the window take precedence.
+**Sleep:** while a batch runs, the app always keeps the Mac awake (like `caffeinate -i`, no setting needed); afterwards normal sleep resumes. The display may still turn off. This does not cover a closed MacBook lid without an external display, choosing **Apple menu → Sleep**, or a nearly empty battery: then the Mac sleeps and the batch pauses until it wakes. For overnight runs, keep the lid open and the power adapter connected.
+
+The app writes the same `.txt` / `.json` / `batch-stt.log` files as the CLI, and honours a `batch-stt.toml` in the chosen folder (or `~/.rphki/batch-stt.toml`); the options chosen in the window take precedence.
 
 The app bundles ffmpeg (GPL); see **Help → Third-Party Licenses**.
 
