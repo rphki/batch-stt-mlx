@@ -187,4 +187,6 @@ Raphael Kirchner [customwebcode.com](https://customwebcode.com)
 
 ## License
 
-MIT, see [LICENSE](LICENSE).
+Code: MIT, see [LICENSE](LICENSE).
+
+The BatchSTT icon and artwork (`gui/icons/`, `gui/scripts/make_icon.py`) are not covered by the MIT License: all rights reserved, see [gui/icons/LICENSE](gui/icons/LICENSE). Forks must use their own icon.

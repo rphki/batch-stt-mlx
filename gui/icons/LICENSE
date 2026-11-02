@@ -1,0 +1,10 @@
+BatchSTT icon and artwork
+
+Copyright (c) 2026 Raphael Kirchner. All rights reserved.
+
+The BatchSTT icon and artwork, namely the files in gui/icons/ and the script
+that renders them (gui/scripts/make_icon.py), are NOT covered by the MIT
+License. They may be redistributed only unmodified and only as part of
+unmodified BatchSTT releases. Forks and other derived works must replace them
+with their own icon and must not use the BatchSTT icon or a confusingly
+similar design.

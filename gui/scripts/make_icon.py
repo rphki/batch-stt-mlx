@@ -2,6 +2,9 @@
 
 Usage: python gui/scripts/make_icon.py   (any Python with Pillow)
 The PNGs are committed, so this only needs to run when the design changes.
+
+Copyright (c) 2026 Raphael Kirchner. All rights reserved.
+Not covered by the MIT License; see gui/icons/LICENSE.
 """
 
 from pathlib import Path
