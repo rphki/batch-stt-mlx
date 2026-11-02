@@ -38,3 +38,8 @@ requires = [
     "toga-cocoa~=0.5.0",
     "std-nslog~=2.0.0",
 ]
+
+[tool.briefcase.app.batch_stt_app.macOS.info]
+# Controls (progress bar, switches, selection) use the icon's orange instead of
+# system blue; the colour lives in assets/Assets.xcassets, compiled by build_dmg.sh
+NSAccentColorName = "AccentColor"
